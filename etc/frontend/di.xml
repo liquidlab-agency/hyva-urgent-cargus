@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © - LiquidLab Agency - All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Hyva\CompatModuleFallback\Model\CompatModuleRegistry">
+        <arguments>
+            <argument name="compatModules" xsi:type="array">
+                <item name="hyva-magento2-urgent-cargus" xsi:type="array">
+                    <item name="original_module" xsi:type="string">Urgent_CargusShipGo</item>
+                    <item name="compat_module" xsi:type="string">Liquidlab_HyvaCargus</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

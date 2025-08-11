@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © - LiquidLab Agency - All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!-- Override the original Urgent_Base return code template with Hyvä-compatible version -->
+        <referenceBlock name="order.shipping.return_code" 
+                        template="Liquidlab_HyvaCargus::order/order_return_code.phtml"/>
+        
+        <!-- Override the original Urgent_CargusShipGo PUDO template with Hyvä-compatible version -->
+        <referenceBlock name="order.shipping.pudo" 
+                        template="Liquidlab_HyvaCargus::order/order_shipping_pudo.phtml"/>
+    </body>
+</page>

@@ -1,0 +1,239 @@
+<?php
+/**
+ * Copyright © - LiquidLab Agency - All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Urgent\Base\Block\Order\ReturnCode;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+
+/** @var ReturnCode $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+$hyvaCsp = $viewModels->require(HyvaCsp::class);
+$returnCode = $block->getReturnCode();
+$uniqueId = md5($block->getNameInLayout());
+?>
+
+<?php if ($returnCode): ?>
+    <div class="block block-order-details-view mb-6" 
+         x-data="returnCodeComponent_<?= $uniqueId ?>()" 
+         x-init="init()">
+         
+        <div class="block-content">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <?= $escaper->escapeHtml(__('Return Code')) ?>
+                    </h3>
+                </div>
+                
+                <div class="p-6 text-center">
+                    <!-- QR Code Display -->
+                    <div class="mb-6 flex justify-center">
+                        <div class="inline-block p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <?= //phpcs:ignore Magento2.Security.XssTemplate.FoundUnescaped
+                            $block->getQrReturnCode()
+                            ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Return Code with Copy Functionality -->
+                    <div class="space-y-4">
+                        <div class="text-sm text-gray-600 font-medium">
+                            <?= $escaper->escapeHtml(__('Click to copy return code:')) ?>
+                        </div>
+                        
+                        <div class="relative inline-block">
+                            <button @click="copyReturnCode()" 
+                                    :disabled="copying"
+                                    class="group relative inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                    type="button">
+                                
+                                <!-- Copy Icon -->
+                                <svg x-show="!copying && !copied" 
+                                     class="w-5 h-5 mr-2" 
+                                     fill="none" 
+                                     stroke="currentColor" 
+                                     viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" 
+                                          stroke-linejoin="round" 
+                                          stroke-width="2" 
+                                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                                
+                                <!-- Loading Icon -->
+                                <svg x-show="copying" 
+                                     class="animate-spin w-5 h-5 mr-2" 
+                                     fill="none" 
+                                     viewBox="0 0 24 24">
+                                    <circle class="opacity-25" 
+                                            cx="12" 
+                                            cy="12" 
+                                            r="10" 
+                                            stroke="currentColor" 
+                                            stroke-width="4"></circle>
+                                    <path class="opacity-75" 
+                                          fill="currentColor" 
+                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                
+                                <!-- Success Icon -->
+                                <svg x-show="copied" 
+                                     class="w-5 h-5 mr-2 text-green-400" 
+                                     fill="none" 
+                                     stroke="currentColor" 
+                                     viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" 
+                                          stroke-linejoin="round" 
+                                          stroke-width="2" 
+                                          d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                
+                                <!-- Button Text -->
+                                <span x-text="buttonText" class="font-mono text-lg tracking-wider">
+                                    <?= $escaper->escapeHtml($returnCode) ?>
+                                </span>
+                            </button>
+                            
+                            <!-- Tooltip -->
+                            <div x-show="showTooltip" 
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 transform scale-95"
+                                 x-transition:enter-end="opacity-100 transform scale-100"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 transform scale-100"
+                                 x-transition:leave-end="opacity-0 transform scale-95"
+                                 class="absolute -top-12 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-gray-900 text-white text-sm rounded-md whitespace-nowrap z-10">
+                                <span x-text="tooltipText"></span>
+                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Instructions -->
+                        <div class="text-sm text-gray-500 max-w-md mx-auto">
+                            <?= $escaper->escapeHtml(__('Use this return code when returning your package to the courier service.')) ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function returnCodeComponent_<?= $uniqueId ?>() {
+            return {
+                // Component State
+                copying: false,
+                copied: false,
+                showTooltip: false,
+                tooltipText: '',
+                
+                // Return Code Data
+                returnCode: '<?= $escaper->escapeJs($returnCode) ?>',
+                
+                // Computed Properties
+                get buttonText() {
+                    if (this.copying) {
+                        return '<?= $escaper->escapeJs(__('Copying...')) ?>';
+                    }
+                    if (this.copied) {
+                        return '<?= $escaper->escapeJs(__('Copied!')) ?>';
+                    }
+                    return this.returnCode;
+                },
+                
+                // Component Lifecycle
+                init() {
+                    console.log('Return Code component initialized');
+                },
+                
+                // Copy Functionality
+                async copyReturnCode() {
+                    if (this.copying || this.copied) {
+                        return;
+                    }
+                    
+                    this.copying = true;
+                    
+                    try {
+                        if (navigator.clipboard && window.isSecureContext) {
+                            // Modern clipboard API
+                            await navigator.clipboard.writeText(this.returnCode);
+                            this.handleCopySuccess();
+                        } else {
+                            // Fallback for older browsers
+                            this.fallbackCopyToClipboard(this.returnCode);
+                        }
+                    } catch (error) {
+                        console.error('Failed to copy return code:', error);
+                        this.handleCopyError();
+                    } finally {
+                        this.copying = false;
+                    }
+                },
+                
+                // Fallback copy method for older browsers
+                fallbackCopyToClipboard(text) {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            this.handleCopySuccess();
+                        } else {
+                            this.handleCopyError();
+                        }
+                    } catch (error) {
+                        console.error('Fallback copy failed:', error);
+                        this.handleCopyError();
+                    } finally {
+                        document.body.removeChild(textArea);
+                    }
+                },
+                
+                // Success handler
+                handleCopySuccess() {
+                    this.copied = true;
+                    this.showTooltip = true;
+                    this.tooltipText = '<?= $escaper->escapeJs(__('Return code copied to clipboard!')) ?>';
+                    
+                    // Reset after 2 seconds
+                    setTimeout(() => {
+                        this.copied = false;
+                        this.showTooltip = false;
+                    }, 2000);
+                },
+                
+                // Error handler
+                handleCopyError() {
+                    this.showTooltip = true;
+                    this.tooltipText = '<?= $escaper->escapeJs(__('Failed to copy. Please select and copy manually.')) ?>';
+                    
+                    // Hide tooltip after 3 seconds
+                    setTimeout(() => {
+                        this.showTooltip = false;
+                    }, 3000);
+                }
+            };
+        }
+        
+        // Register with Alpine.js
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('returnCodeComponent_<?= $uniqueId ?>', returnCodeComponent_<?= $uniqueId ?>);
+        });
+    </script>
+    <?php $hyvaCsp->registerInlineScript() ?>
+<?php endif; ?>

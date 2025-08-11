@@ -1,0 +1,27 @@
+{
+    "name": "liquidlab-agency/hyva-urgent-cargus",
+    "description": "Hyva Checkout compatibility module for Urgent Cargus",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Liquidlab Agency",
+            "email": "support@liquidlab.ro"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "magento/framework": ">=103.0",
+        "hyva-themes/magento2-hyva-checkout": "*",
+        "liquidlab-agency/magento2-urgent-cargus": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Liquidlab\\HyvaCargus\\": ""
+        }
+    }
+}

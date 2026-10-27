@@ -1,5 +1,7 @@
 # Urgent Cargus — Hyvä Checkout
 
+**This is not part of standard LIQUID FRAMEWORK modules added under maintenance**
+
 Brings **Urgent Cargus Ship & Go** pickup-point selection to the [Hyvä Checkout](https://www.hyva.io/hyva-checkout.html). When a shopper picks a Cargus **Ship & Go** shipping method, they choose a **PUDO point** (a pickup point or locker) on an interactive map; the choice is validated, saved to the order, and shown — with directions — on the order page.
 
 This is the Hyvä-Checkout compatibility layer for the base **Urgent CargusShipGo** shipping module; it reuses that module's pickup-point data and map, re-implemented for Hyvä's Magewire architecture.
